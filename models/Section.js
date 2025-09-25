@@ -8,7 +8,7 @@ const sectionSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    name: {
+    uniqueName: {
       type: String,
       required: true,
       trim: true,
@@ -23,7 +23,10 @@ const sectionSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
       default: true,
-    }
+    },
+    relatedId: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
   },
   {
     timestamps: true, // createdAt ve updatedAt alanlarını otomatik ekler
