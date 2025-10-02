@@ -25,7 +25,7 @@ class FileUploadService {
         metadata: {
           contentType: this.getContentType(extension),
           metadata: {
-            originalName: fileName,
+            originalName: Buffer.from(fileName, 'latin1').toString('utf8'),
             uploadedAt: new Date().toISOString(),
           },
         },
