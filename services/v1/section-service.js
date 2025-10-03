@@ -22,3 +22,20 @@ exports.updateHomeSections = async (updateData) => {
     throw error;
   }
 };
+
+exports.createHomeSection = async (sectionData) => { 
+  try {
+    const newSection = new Section(sectionData);
+    return newSection.save();
+  } catch (error) {
+    throw error;
+  }
+}
+
+exports.deleteHomeSection = async (id) => { 
+  try {
+    return Section.findOneAndDelete({ uniqueName: id });
+  } catch (error) {
+    throw error;
+  }
+};

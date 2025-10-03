@@ -32,3 +32,52 @@ exports.updateHomeSections = async (req, res) => {
     });
   }
 };
+
+exports.createHomeSection = async (req, res) => {
+  try {
+    const sectionData = req.body;
+    const newSection = await sectionService.createHomeSection(sectionData);
+    res.status(201).json({
+      success: true,
+      data: newSection,
+    });
+  } catch (err) {
+    console.error("Error creating home section:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+};
+
+exports.deleteHomeSection = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Section ID is required for deletion",
+      });
+    }
+
+    const deletedSection = await sectionService.deleteHomeSection(id);
+    if (!deletedSection) {
+      return res.status(404).json({
+        success: false,
+        message: "Section not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Section deleted successfully",
+      data: deletedSection,
+    });
+  } catch (err) {
+    console.error("Error deleting home section:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+};

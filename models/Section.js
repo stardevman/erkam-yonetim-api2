@@ -2,17 +2,22 @@ const mongoose = require("mongoose");
 
 const sectionSchema = new mongoose.Schema(
   {
-    sectionId: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
+    // sectionId: {
+    //   type: String,
+    //   required: true,
+    //   unique: true,
+    //   trim: true,
+    // },
     uniqueName: {
       type: String,
       required: true,
       trim: true,
       unique: true,
+    },
+    title: {
+      type: String,
+      //required: true,
+      trim: true,
     },
     order: {
       type: Number,
