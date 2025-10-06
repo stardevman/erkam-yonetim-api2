@@ -10,6 +10,17 @@ exports.getBanners = async () => {
   }
 };
 
+exports.createBanner = async (bannerData) => {
+  try {
+    console.log(bannerData);
+    const newBanner = new Banner(bannerData);
+    return newBanner.save();
+  } catch (error) {
+    console.error("Error creating banner:", error);
+    throw new Error("Failed to create banner");
+  }
+};
+
 exports.updateBanner = async (id, updateData) => {
   try {
     const updatedBanner = await Banner.findByIdAndUpdate(
@@ -28,3 +39,16 @@ exports.updateBanner = async (id, updateData) => {
     throw new Error("Failed to update banner");
   }
 };
+
+exports.deleteBanner = async (id) => {
+  try {
+    const deletedBanner = await Banner.findByIdAndDelete(id);
+    if (!deletedBanner) {
+      throw new Error("Banner not found");
+    }
+    return deletedBanner.toObject();
+  } catch (error) {
+    console.error("Error deleting banner:", error);
+    throw new Error("Failed to delete banner");
+  }
+}

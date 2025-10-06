@@ -16,8 +16,13 @@ const sectionSchema = new mongoose.Schema(
     },
     title: {
       type: String,
-      //required: true,
+        //required: true,
       trim: true,
+    },
+    type: {
+      type: String,
+      required: true,
+      //enum: ["banner_carousel", "book_list"],
     },
     order: {
       type: Number,

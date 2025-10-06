@@ -61,12 +61,13 @@ exports.deleteHomeSection = async (req, res) => {
     }
 
     const deletedSection = await sectionService.deleteHomeSection(id);
-    if (!deletedSection) {
-      return res.status(404).json({
-        success: false,
-        message: "Section not found",
-      });
-    }
+    //TODO: 404 hatasını verilecek
+    // if (!deletedSection) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: "Section not found",
+    //   });
+    // }
 
     res.status(200).json({
       success: true,

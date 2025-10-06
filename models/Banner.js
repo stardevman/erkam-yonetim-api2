@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const bannerSchema = new mongoose.Schema(
   {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     isActive: {
       type: Boolean,
       required: true,
@@ -12,11 +17,11 @@ const bannerSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
-    imageUrl: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    // imageUrl: {
+    //   type: String,
+    //   required: true,
+    //   trim: true,
+    // },
     items: [
       {
         imageUrl: {
@@ -24,13 +29,11 @@ const bannerSchema = new mongoose.Schema(
           required: true,
           trim: true,
         },
-        link: {
-          type: String,
-          required: false,
-          trim: true,
-          default: "",
+        relatedBook: {
+          isbn: { type: String, required: true },
+          title: { type: String, required: true },
         },
-      }
+      },
     ],
   },
   {

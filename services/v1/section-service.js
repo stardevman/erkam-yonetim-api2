@@ -8,14 +8,10 @@ exports.getHomeSections = async () => {
   }
 };
 
-exports.updateHomeSections = async (updateData) => { 
+exports.updateHomeSections = async (updateData) => {
   try {
-    const updatePromises = updateData.map(item => 
-      Section.findByIdAndUpdate(
-        item._id,
-        { $set: item },
-        { new: true }
-      )
+    const updatePromises = updateData.map((item) =>
+      Section.findByIdAndUpdate(item._id, { $set: item }, { new: true })
     );
     return Promise.all(updatePromises);
   } catch (error) {
@@ -23,16 +19,16 @@ exports.updateHomeSections = async (updateData) => {
   }
 };
 
-exports.createHomeSection = async (sectionData) => { 
+exports.createHomeSection = async (sectionData) => {
   try {
     const newSection = new Section(sectionData);
     return newSection.save();
   } catch (error) {
     throw error;
   }
-}
+};
 
-exports.deleteHomeSection = async (id) => { 
+exports.deleteHomeSection = async (id) => {
   try {
     return Section.findOneAndDelete({ uniqueName: id });
   } catch (error) {
