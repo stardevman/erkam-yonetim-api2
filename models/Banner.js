@@ -35,6 +35,71 @@ const bannerSchema = new mongoose.Schema(
         },
       },
     ],
+    itemsEn: [
+      {
+        imageUrl: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        relatedBook: {
+          isbn: { type: String, required: true },
+          title: { type: String, required: true },
+        },
+      },
+    ],
+    itemsAr: [
+      {
+        imageUrl: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        relatedBook: {
+          isbn: { type: String, required: true },
+          title: { type: String, required: true },
+        },
+      },
+    ],
+    itemsFr: [
+      {
+        imageUrl: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        relatedBook: {
+          isbn: { type: String, required: true },
+          title: { type: String, required: true },
+        },
+      },
+    ],
+    itemsEs: [
+      {
+        imageUrl: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        relatedBook: {
+          isbn: { type: String, required: true },
+          title: { type: String, required: true },
+        },
+      },
+    ],
+    itemsDe: [
+      {
+        imageUrl: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        relatedBook: {
+          isbn: { type: String, required: true },
+          title: { type: String, required: true },
+        },
+      },
+    ],
   },
   {
     timestamps: true, // createdAt ve updatedAt alanlarını otomatik ekler
