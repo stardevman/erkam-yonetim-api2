@@ -21,7 +21,7 @@ const sectionSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      required: true,
+      default: "book_list",
       //enum: ["banner_carousel", "book_list"],
     },
     order: {
