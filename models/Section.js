@@ -29,7 +29,7 @@ const sectionSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
-    isVisible: {
+    isActive: {
       type: Boolean,
       required: true,
       default: true,
