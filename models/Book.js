@@ -83,7 +83,7 @@ const bookSchema = new mongoose.Schema(
     },
     language: {
       type: String,
-      enum: ["tr", "en", "ar", "fr", "de", "es", "it", "ru", "zh"], // Desteklenen diller
+      //enum: ["tr", "en", "ar", "fr", "de", "es", "it", "ru", "zh"], // Desteklenen diller
       default: "tr",
     },
     relatedBook: {
