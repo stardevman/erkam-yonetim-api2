@@ -11,7 +11,7 @@ exports.getHomeSections = async () => {
 exports.updateHomeSections = async (updateData) => {
   try {
     const updatePromises = updateData.map((item) =>
-      Section.findByIdAndUpdate(item.id, { $set: item }, { new: true })
+      Section.findByIdAndUpdate(item._id, { $set: item }, { new: true })
     );
     return Promise.all(updatePromises);
   } catch (error) {
