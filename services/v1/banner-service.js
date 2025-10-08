@@ -12,7 +12,6 @@ exports.getBanners = async () => {
 
 exports.createBanner = async (bannerData) => {
   try {
-    console.log(bannerData);
     const newBanner = new Banner(bannerData);
     return newBanner.save();
   } catch (error) {
@@ -46,9 +45,14 @@ exports.deleteBanner = async (id) => {
     if (!deletedBanner) {
       throw new Error("Banner not found");
     }
+
+    // Remove banner reference from associated section
+    const Section = require("../../models/Section");
+    await Section.deleteOne({ relatedId: deletedBanner._id });
+
     return deletedBanner.toObject();
   } catch (error) {
     console.error("Error deleting banner:", error);
     throw new Error("Failed to delete banner");
   }
-}
+};
