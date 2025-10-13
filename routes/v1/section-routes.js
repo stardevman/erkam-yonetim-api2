@@ -2,6 +2,7 @@ const express = require("express");
 const {
   getHomeSections,
   createHomeSection,
+  updateHomeSection,
   updateHomeSections,
   deleteHomeSection
 } = require("../../controllers/v1/section-controller.js");
@@ -13,6 +14,6 @@ const router = express.Router();
 router.route("/").get(getHomeSections).post(createHomeSection).put(updateHomeSections);
 
 // DELETE /v1/sections/:id - Bölüm sil
-router.route("/:id").delete(deleteHomeSection);
+router.route("/:id").put(updateHomeSection).delete(deleteHomeSection);
 
 module.exports = router;

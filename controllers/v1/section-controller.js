@@ -16,6 +16,36 @@ exports.getHomeSections = async (req, res) => {
   }
 };
 
+exports.updateHomeSection = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    const updatedSection = await sectionService.updateHomeSection(id, updateData);
+    if (!updatedSection) {
+      return res.status(404).json({
+        success: false,
+        message: "Section not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: updatedSection,
+    });
+  } catch (err) {
+    if (err.message === "Section not found") {
+      res.status(404).json({
+        success: false,
+        error: err.message,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: err.message,
+      });
+    }
+  }
+};
+
 exports.updateHomeSections = async (req, res) => {
   try {
     const updateData = req.body;

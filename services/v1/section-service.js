@@ -8,6 +8,21 @@ exports.getHomeSections = async () => {
   }
 };
 
+exports.updateHomeSection = async (id, updateData) => {
+  try {
+    const section = await Section.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+    if (!section) {
+      throw new Error("Section not found");
+    }
+    return section;
+  } catch (error) {
+    throw error;
+  }
+};
+
 exports.updateHomeSections = async (updateData) => {
   try {
     const updatePromises = updateData.map((item) =>
