@@ -4,7 +4,26 @@ const sectionSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-        //required: true,
+      trim: true,
+    },
+    titleEn: {
+      type: String,
+      trim: true,
+    },
+    titleAr: {
+      type: String,
+      trim: true,
+    },
+    titleFr: {
+      type: String,
+      trim: true,
+    },
+    titleDe: {
+      type: String,
+      trim: true,
+    },
+    titleEs: {
+      type: String,
       trim: true,
     },
     type: {
