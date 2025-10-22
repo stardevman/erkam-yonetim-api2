@@ -145,7 +145,7 @@ class MediaService {
     try {
       const {
         page = 1,
-        limit = 20,
+        limit = 50,
         type = "all", // 'all', 'images', 'documents'
         sortBy = "uploadedAt",
         sortOrder = "desc",
@@ -160,7 +160,7 @@ class MediaService {
       // Firebase Storage'dan dosyaları getir
       const [files] = await bucket.getFiles({
         prefix: prefix,
-        maxResults: limit * page + 50, // Biraz fazla al, sonra filtrele
+        maxResults: Math.max(limit * page + 100, 200), // En az 200, genelde limit*page+100
       });
 
       // Dosya bilgilerini işle

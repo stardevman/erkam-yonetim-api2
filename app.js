@@ -17,6 +17,7 @@ app.use(express.json());
 app.use("/v1/auth", require("./routes/v1/auth-routes"));
 app.use("/v1/users", require("./routes/v1/user-routes"));
 app.use("/v1/books", require("./routes/v1/book-routes"));
+app.use("/v1/translations", require("./routes/v1/translation-routes"));
 app.use("/v1/persons", require("./routes/v1/person-routes"));
 app.use("/v1/categories", require("./routes/v1/category-routes"));
 app.use("/v1/sections", require("./routes/v1/section-routes"));

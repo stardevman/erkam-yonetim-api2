@@ -19,10 +19,10 @@ exports.getBooks = async (req, res) => {
   }
 };
 
-exports.getBookByIsbn = async (req, res) => {
+exports.getBook = async (req, res) => {
   try {
-    const { isbn } = req.params;
-    const book = await bookService.getBookByIsbn(isbn);
+    const { id } = req.params;
+    const book = await bookService.getBook(id);
     res.status(200).json({
       success: true,
       data: book,
@@ -113,6 +113,7 @@ exports.createBook = async (req, res) => {
 };
 
 exports.updateBook = async (req, res) => {
+  const { id } = req.params;
   const updateData = req.body;
   try {
     // Media ID'leri varsa URL'leri al
@@ -164,7 +165,7 @@ exports.updateBook = async (req, res) => {
       }
     }
 
-    const updatedBook = await bookService.updateBook(updateData);
+    const updatedBook = await bookService.updateBook(id, updateData);
     res.status(200).json({
       success: true,
       data: updatedBook,
@@ -187,10 +188,10 @@ exports.updateBook = async (req, res) => {
 
 exports.deleteBook = async (req, res) => {
   try {
-    const { isbn } = req.params;
+    const { id } = req.params;
 
     // Delete the book from database
-    await bookService.deleteBook(isbn);
+    await bookService.deleteBook(id);
 
     res.status(200).json({
       success: true,
@@ -213,7 +214,7 @@ exports.deleteBook = async (req, res) => {
 
 exports.searchBooks = async (req, res) => {
   try {
-    const { query, author, isbn, language, limit, page, sortField, sortOrder } =
+    const { query, author, isbn, language, limit, page, sortField, sortOrder, primaryTranslation } =
       req.query;
 
     // Arama servisini çağır
@@ -226,6 +227,7 @@ exports.searchBooks = async (req, res) => {
       page,
       sortField,
       sortOrder,
+      primaryTranslation,
     });
 
     res.status(200).json({

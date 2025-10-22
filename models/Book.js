@@ -100,6 +100,10 @@ const bookSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    printBookUrl: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true, // createdAt ve updatedAt alanlarını otomatik ekler

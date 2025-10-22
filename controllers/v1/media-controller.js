@@ -154,7 +154,7 @@ class MediaController {
     try {
       const {
         page = 1,
-        limit = 20,
+        limit = 50,
         type = "all",
         sortBy = "uploadedAt",
         sortOrder = "desc",

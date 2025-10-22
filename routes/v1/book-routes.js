@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   getBooks,
-  getBookByIsbn,
+  getBook,
   createBook,
   updateBook,
   deleteBook,
@@ -34,12 +34,12 @@ router.route("/:isbn/image").put(uploadSingleImage, uploadBookImage);
 // PUT /v1/books/:isbn/document - Sadece kitap dosyasını güncelle
 router.route("/:isbn/document").put(uploadSingleDocument, uploadBookDocument);
 
-// GET /v1/books/:isbn - Belirli bir kitabı getir
-// PUT /v1/books/:isbn - Belirli bir kitabı güncelle (with optional file upload)
-// DELETE /v1/books/:isbn - Belirli bir kitabı sil
+// GET /v1/books/:id - Belirli bir kitabı getir
+// PUT /v1/books/:id - Belirli bir kitabı güncelle (with optional file upload)
+// DELETE /v1/books/:id - Belirli bir kitabı sil
 router
-  .route("/:isbn")
-  .get(getBookByIsbn)
+  .route("/:id")
+  .get(getBook)
   .put(uploadBookFiles, updateBook)
   .delete(deleteBook);
 

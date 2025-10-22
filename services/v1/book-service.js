@@ -14,58 +14,61 @@ exports.getBooks = async (params = {}) => {
     // Pipeline'ı adım adım oluştur
     const pipeline = [];
 
+    // Sadece relatedBook null olanları kitapları getir
+    pipeline.push({ $match: { relatedBook: null } });
+
     // Translation bilgilerini lookup et
-    pipeline.push({
-      $lookup: {
-        from: "translations",
-        localField: "translationsId",
-        foreignField: "_id",
-        as: "translation",
-      },
-    });
+    // pipeline.push({
+    //   $lookup: {
+    //     from: "translations",
+    //     localField: "translationsId",
+    //     foreignField: "_id",
+    //     as: "translation",
+    //   },
+    // });
 
     // Translation varsa unwind et
-    pipeline.push({ $unwind: "$translation" });
+    // pipeline.push({ $unwind: "$translation" });
 
     // Sadece isbns array'i 1 olanları filtrele yoksa language tr ise
-    pipeline.push({
-      $match: {
-        $expr: {
-          $cond: {
-            if: { $eq: ["$language", "tr"] },
-            then: true,
-            else: { $eq: [{ $size: "$translation.books" }, 1] },
-          },
-        },
-      },
-    });
+    // pipeline.push({
+    //   $match: {
+    //     $expr: {
+    //       $cond: {
+    //         if: { $eq: ["$language", "tr"] },
+    //         then: true,
+    //         else: { $eq: [{ $size: "$translation.books" }, 1] },
+    //       },
+    //     },
+    //   },
+    // });
 
     // Translation books'daki isbn'leri ayrı kitaplar olarak lookup et
-    pipeline.push({
-      $lookup: {
-        from: "books",
-        let: { translationBooks: "$translation.books" },
-        as: "translationBooks",
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $in: ["$isbn", "$$translationBooks.isbn"],
-              },
-            },
-          },
-          {
-            $project: {
-              _id: 1,
-              isbn: 1,
-              title: 1,
-              image: 1,
-              language: 1,
-            },
-          },
-        ],
-      },
-    });
+    // pipeline.push({
+    //   $lookup: {
+    //     from: "books",
+    //     let: { translationBooks: "$translation.books" },
+    //     as: "translationBooks",
+    //     pipeline: [
+    //       {
+    //         $match: {
+    //           $expr: {
+    //             $in: ["$isbn", "$$translationBooks.isbn"],
+    //           },
+    //         },
+    //       },
+    //       {
+    //         $project: {
+    //           _id: 1,
+    //           isbn: 1,
+    //           title: 1,
+    //           image: 1,
+    //           language: 1,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // });
 
     // Person lookup
     pipeline.push({
@@ -115,30 +118,29 @@ exports.getBooks = async (params = {}) => {
     });
 
     // RelatedBook lookup
-    pipeline.push({
-      $lookup: {
-        from: "books",
-        localField: "relatedBook",
-        foreignField: "_id",
-        as: "relatedBook",
-        pipeline: [
-          {
-            $project: {
-              _id: 1,
-              title: 1,
-              isbn: 1,
-              person: 1,
-            },
-          },
-        ],
-      },
-    });
+    // pipeline.push({
+    //   $lookup: {
+    //     from: "books",
+    //     localField: "relatedBook",
+    //     foreignField: "_id",
+    //     as: "relatedBook",
+    //     pipeline: [
+    //       {
+    //         $project: {
+    //           _id: 1,
+    //           title: 1,
+    //           isbn: 1,
+    //           person: 1,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // });
 
     // Arrays'i unwind et
-    // pipeline.push({ $unwind: { path: "$persons", preserveNullAndEmptyArrays: true } });
-    pipeline.push({
-      $unwind: { path: "$relatedBook", preserveNullAndEmptyArrays: true },
-    });
+    // pipeline.push({
+    //   $unwind: { path: "$relatedBook", preserveNullAndEmptyArrays: true },
+    // });
 
     // Sıralama
     pipeline.push({ $sort: { createdAt: -1 } });
@@ -159,7 +161,7 @@ exports.getBooks = async (params = {}) => {
 
     const results = await Book.aggregate(pipeline);
     const books = results[0]?.data || [];
-    const total = (await Stats.getCount("books")) || 0;
+    const total = results[0]?.count[0]?.total || 0;
 
     return {
       books,
@@ -167,7 +169,7 @@ exports.getBooks = async (params = {}) => {
         total,
         page: pageNumber,
         limit: limitNumber,
-        pages: Math.ceil(total / limitNumber),
+        pages: Math.ceil(total / limitNumber) || 1,
       },
     };
   } catch (error) {
@@ -180,6 +182,11 @@ exports.createBook = async (bookData) => {
   let translation;
 
   try {
+    const existingBook = await Book.findOne({ isbn: bookData.isbn });
+    if (existingBook) {
+      throw new Error("Bu ISBN'e sahip bir kitap zaten var");
+    }
+
     if (bookData.relatedBook) {
       const relatedBook = await Book.findById(bookData.relatedBook);
 
@@ -210,15 +217,12 @@ exports.createBook = async (bookData) => {
       await translation.save();
     }
 
-    const existingBook = await Book.findOne({ isbn: bookData.isbn });
-    if (existingBook) {
-      throw new Error("Bu ISBN'e sahip bir kitap zaten var");
-    }
-
     const newBook = new Book({
       ...bookData,
       translationsId: translation._id,
     });
+
+    console.log(newBook);
 
     // persons listesinden ilk yazarı leadAuthor olarak ata
     if (newBook.persons && newBook.persons.length > 0) {
@@ -244,9 +248,9 @@ exports.createBook = async (bookData) => {
   }
 };
 
-exports.getBookByIsbn = async (isbn) => {
+exports.getBook = async (id) => {
   try {
-    const book = await Book.findOne({ isbn })
+    const book = await Book.findById(id)
       .populate("persons")
       .populate("categories")
       .populate("relatedBook", { _id: 1, isbn: 1, title: 1, person: 1 });
@@ -276,7 +280,7 @@ exports.getBookByIsbn = async (isbn) => {
   }
 };
 
-exports.updateBook = async (updateData) => {
+exports.updateBook = async (id, updateData) => {
   try {
     // Eğer relatedBook güncellenmişse, ilgili çeviri grubunu güncelle
     // if (updateData.relatedBook) {
@@ -308,39 +312,109 @@ exports.updateBook = async (updateData) => {
     //   }
     // }
 
-    // _id alanını updateData'dan çıkar (immutable field hatası önlenir)
-    const { _id, ...updateDataWithoutId } = updateData;
+    const book = await Book.findById({ _id: id });
 
     // persons listesinden ilk yazarı leadAuthor olarak ata
-    if (updateDataWithoutId.persons && updateDataWithoutId.persons.length > 0) {
+    if (updateData.persons && updateData.persons.length > 0) {
       const Person = require("../../models/Person");
       const firstAuthor = await Person.findOne({
-        _id: { $in: updateDataWithoutId.persons[0] },
+        _id: { $in: updateData.persons[0] },
         role: "author",
       });
       if (firstAuthor) {
-        updateDataWithoutId.leadAuthor = firstAuthor.name;
+        updateData.leadAuthor = firstAuthor.name;
       }
     } else {
-      updateDataWithoutId.leadAuthor = "";
+      updateData.leadAuthor = "";
     }
 
-    return await Book.findOneAndUpdate(
-      { isbn: updateDataWithoutId.isbn },
-      updateDataWithoutId,
-      {
-        new: true,
-        runValidators: true,
-      }
-    ).populate("persons").populate("categories");
+    const updatedBook = await Book.findByIdAndUpdate({ _id: id }, updateData)
+      .populate("persons")
+      .populate("categories");
+
+    if (!updatedBook) {
+      throw new Error("Book not found");
+    }
+
+    // if (!updateData.relatedBook) {
+    //   // Eğer relatedBook kaldırılmışsa, çeviri grubundan bu kitabı çıkar
+    //   if (book && book.translationsId) {
+    //     const updatedTranslation = await Translation.findByIdAndUpdate(
+    //       book.translationsId,
+    //       {
+    //         $pull: { books: { isbn: book.isbn } },
+    //       },
+    //       { new: true }
+    //     );
+    //     // Eğer books listesi hiç kalmadıysa dökümanı sil
+    //     if (
+    //       updatedTranslation &&
+    //       (!updatedTranslation.books || updatedTranslation.books.length === 0)
+    //     ) {
+    //       await Translation.findByIdAndDelete(book.translationsId);
+    //     }
+
+    //     // Yeni bir çeviri grubu oluştur
+    //     const newTranslation = new Translation({
+    //       books: [
+    //         {
+    //           isbn: updatedBook.isbn,
+    //           language: updatedBook.language,
+    //         },
+    //       ],
+    //     });
+    //     await newTranslation.save();
+
+    //     // Kitabın translationsId'sini yeni oluşturulan çeviri grubunun ID'si ile güncelle
+    //     updatedBook.translationsId = newTranslation._id;
+    //     await updatedBook.save();
+
+    //     // Çeviri sayısını güncelle
+    //     await Stats.incrementCount("translations");
+    //   }
+    // }
+
+    if (book.language !== updatedBook.language) {
+      // Eğer kitabın dili değiştiyse, çeviri grubundaki dili de güncelle
+      await Translation.findByIdAndUpdate(
+        updatedBook.translationsId,
+        {
+          $set: {
+            "books.$[elem].language": updatedBook.language,
+          },
+        },
+        {
+          arrayFilters: [{ "elem.isbn": updatedBook.isbn }],
+          new: true,
+          runValidators: true,
+        }
+      );
+    } else if (book.isbn !== updatedBook.isbn) { 
+      // Eğer kitabın ISBN'i değiştiyse, çeviri grubundaki ISBN'i de güncelle
+      await Translation.findByIdAndUpdate(
+        updatedBook.translationsId,
+        {
+          $set: {
+            "books.$[elem].isbn": updatedBook.isbn,
+          },
+        },
+        {
+          arrayFilters: [{ "elem.isbn": book.isbn }],
+          new: true,
+          runValidators: true,
+        }
+      );
+    }
+
+    return updatedBook;
   } catch (error) {
     throw error;
   }
 };
 
-exports.deleteBook = async (isbn) => {
+exports.deleteBook = async (id) => {
   try {
-    const book = await Book.findOneAndDelete({ isbn });
+    const book = await Book.findByIdAndDelete(id);
     if (!book) {
       throw new Error("Book not found");
     }
@@ -366,6 +440,7 @@ exports.deleteBook = async (isbn) => {
 
     return book;
   } catch (error) {
+    console.error("Error deleting book:", error);
     throw error;
   }
 };
@@ -374,13 +449,13 @@ exports.searchBooks = async (searchParams = {}) => {
   try {
     const {
       query,
-      //person,
       isbn,
       language,
       limit = 10,
       page = 1,
       sortField = "createdAt",
       sortOrder = "desc",
+      primaryTranslation = false,
     } = searchParams;
 
     // Sayfa ve limit değerlerini doğru formata dönüştür
@@ -391,7 +466,7 @@ exports.searchBooks = async (searchParams = {}) => {
     // Atlas Search kullanarak arama pipeline'ı oluştur
     const pipeline = [];
 
-    if (query || person || isbn || language) {
+    if (query || isbn || language) {
       let searchStage = {
         $search: {
           index: "default",
@@ -417,16 +492,6 @@ exports.searchBooks = async (searchParams = {}) => {
           },
         });
       }
-
-      // Kişi filtresi
-      // if (person) {
-      //   searchStage.$search.compound.must.push({
-      //     equals: {
-      //       path: "person",
-      //       value: mongoose.Types.ObjectId(person),
-      //     },
-      //   });
-      // }
 
       // ISBN filtresi (tam eşleşme)
       if (isbn) {
@@ -502,6 +567,13 @@ exports.searchBooks = async (searchParams = {}) => {
       },
     });
 
+    // Sadece primaryTranslation ise, relatedBook null olanları filtrele
+    if (primaryTranslation) {
+      pipeline.push({
+        $match: { relatedBook: null },
+      });
+    }
+
     pipeline.push({
       $lookup: {
         from: "books",
@@ -511,13 +583,13 @@ exports.searchBooks = async (searchParams = {}) => {
       },
     });
 
-    // Unwind the arrays from lookup
+    //Unwind the arrays from lookup
     pipeline.push({
       $unwind: { path: "$relatedBook", preserveNullAndEmptyArrays: true },
     });
 
     // Search score'unu field olarak ekle (sadece search yapıldıysa)
-    if (query || person || isbn || language) {
+    if (query || isbn || language) {
       pipeline.push({
         $addFields: {
           score: { $meta: "searchScore" },
@@ -527,7 +599,7 @@ exports.searchBooks = async (searchParams = {}) => {
 
     // Sıralama stage'i
     const sortStage = {};
-    if (query && (query || person || isbn || language)) {
+    if (query && (query || isbn || language)) {
       // Search yapıldıysa önce score'a göre sırala
       sortStage.score = -1;
       sortStage[sortField] = sortOrder === "asc" ? 1 : -1;
