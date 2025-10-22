@@ -2,7 +2,6 @@ const { admin } = require("../../config/firebase-admin");
 const { sendMail } = require("../../config/mail-config");
 
 exports.sendVerificationCode = async (email) => {
-    return { success: true, message: "Doğrulama kodu gönderildi" };
   try {
     const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 haneli rastgele kod - string olarak
     const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 dakika geçerli
@@ -40,7 +39,6 @@ exports.sendVerificationCode = async (email) => {
 };
 
 exports.confirmVerificationCode = async (email, code) => {
-  return true;
   try {
     const snapshot = await admin
       .firestore()

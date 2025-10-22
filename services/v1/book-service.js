@@ -222,8 +222,6 @@ exports.createBook = async (bookData) => {
       translationsId: translation._id,
     });
 
-    console.log(newBook);
-
     // persons listesinden ilk yazarı leadAuthor olarak ata
     if (newBook.persons && newBook.persons.length > 0) {
       const Person = require("../../models/Person");
